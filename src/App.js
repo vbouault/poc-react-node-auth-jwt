@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import './App.css';
-import jwtDecode from 'jwt-decode'
+import jwtDecode from 'jwt-decode';
+import AuthContext from './authContext'
 
 import {
   BrowserRouter as Router,
@@ -17,8 +18,7 @@ import SecretPage from './SecretPage'
 // A wrapper for <Route> that redirects to the login
 // screen if you're not yet authenticated.
 function PrivateRoute({ children, ...rest }) {
-  // const {token} = useContext(AuthContext)
-  const token = null
+  const {token} = useContext(AuthContext)
   return (
     <Route
       {...rest}
@@ -51,42 +51,49 @@ function App() {
   }
 
   return (
-    <div className="App">
-        {userNameFromToken && 
+    <AuthContext.Provider value={
+      { 
+        token: token,
+        saveToken: (token) => (setTokenInLocalStorage(token))
+      }
+    }>
+      <div className="App">
+          {userNameFromToken && 
+            <div>
+              <p>Welcome back {userNameFromToken} !</p>
+              <button onClick={() => setTokenInLocalStorage('')}>Log out</button>
+            </div>
+          }
+          <Router>
           <div>
-            <p>Welcome back {userNameFromToken} !</p>
-            <button onClick={() => setTokenInLocalStorage('')}>Log out</button>
+            <nav>
+              <ul>
+                <li>
+                  <Link to="/login">Login</Link>
+                </li>
+                <li>
+                  <Link to="/register">Register</Link>
+                </li>
+                <li>
+                  <Link to="/secret">Show me a secret</Link>
+                </li>
+              </ul>
+            </nav>
+            <Switch>
+              <Route path="/login">
+                <LoginPage />
+              </Route>
+              <Route path="/register">
+                <RegisterPage />
+              </Route>
+              <PrivateRoute path="/secret">
+                <SecretPage />
+              </PrivateRoute>
+            </Switch>
           </div>
-        }
-        <Router>
-        <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-              <li>
-                <Link to="/register">Register</Link>
-              </li>
-              <li>
-                <Link to="/secret">Show me a secret</Link>
-              </li>
-            </ul>
-          </nav>
-          <Switch>
-            <Route path="/login">
-              <LoginPage />
-            </Route>
-            <Route path="/register">
-              <RegisterPage />
-            </Route>
-            <PrivateRoute path="/secret">
-              <SecretPage />
-            </PrivateRoute>
-          </Switch>
+        </Router>
         </div>
-      </Router>
-      </div>
+      </AuthContext.Provider>
   );
 }
 

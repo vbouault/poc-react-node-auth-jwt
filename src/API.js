@@ -5,13 +5,11 @@ const API = axios.create({
 })
 
 const placeTokenInRequestHeaders = req => {
-  /* 
   const token = localStorage.getItem('authToken')
   if (token) {
     req.headers['Authorization'] = `Bearer ${token}`
   }
   return req
-  */
 }
 
 API.interceptors.request.use(placeTokenInRequestHeaders);
